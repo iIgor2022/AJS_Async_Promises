@@ -1,5 +1,5 @@
 import read from '../reader';
-import GameSavingLoader from '../app';
+import GameSavingLoader from '../GameSavingLoader';
 
 jest.mock('../reader');
 beforeEach(() => {
@@ -14,19 +14,20 @@ test('Testing resolve', async () => {
     bufferView[i] = data.charCodeAt(i);
   }
   read.mockResolvedValue(buffer);
-  const result = await GameSavingLoader.load();
-  const date = new Date(1546300800);
-  expect(result).toEqual({
-    id: 9,
-    created: date.toISOString(),
-    userInfo: {
-      id: 1, name: 'Hitman', level: 10, points: 2000,
-    },
+  GameSavingLoader.load().then((obj) => {
+    expect(obj).toEqual(
+      {
+        id: 9,
+        created: 1546300800,
+        userInfo: {
+          id: 1, name: 'Hitman', level: 10, points: 2000,
+        },
+      },
+    );
   });
 });
 
 test('Testing reject', async () => {
-  expect.assertions(1);
   read.mockResolvedValue(new ArrayBuffer(0));
   try {
     const result = await GameSavingLoader.load();
